@@ -1,18 +1,37 @@
-export const weatherAPIKey = import.meta.env.VITE_WEATHER_API_KEY;
+const weatherAPIKey = import.meta.env.VITE_WEATHER_API_KEY;
 
-// export function getWeatherData(weatherData){
-//     const url = `https://api.weatherapi.com/v1/current.json?key=${weatherAPIKey}&q=London&aqi=no`;
-//         fetch(url)
-//           .then(response => {
-//             if (!response.ok) {
-//               throw new Error('Network response was not ok');
-//             }
-//             weatherData = response.json();
-//           })
-//           .catch(error => {
-//             console.error('There was a problem fetching the data:', error);
-//           });
-          
-//           return weatherData;
-//         }
-// console.log("Weather Data:", weatherData);
+export async function getWeatherData(query){
+    let weatherData;
+    
+    if(query){
+        localStorage.setItem("lastQuery",query);
+    }
+    else if(!query && localStorage.getItem("lastQuery")){
+        query = localStorage.getItem("lastQuery");
+    }
+    else{
+        query = "London";
+    }
+
+    
+    let url = `https://api.weatherapi.com/v1/current.json?key=${weatherAPIKey}&q=${query}&aqi=no`;
+    try{
+        await fetch(url)
+            .then(response => {
+                if(!response.ok){
+                    console.log("Error");
+                }
+                return response.json()
+            })
+            .then(data => {
+                weatherData = data;
+                return data;
+            })
+            .catch(error => console.error(error))
+    }catch(error){
+        console.error(error);
+    }
+    
+    return weatherData;
+}
+
